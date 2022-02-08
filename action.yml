@@ -2,19 +2,28 @@ name: "Conan cache setup"
 description: "Configures the conan cache"
 runs:
   using: "composite"
+  inputs:
+    build-type:
+      description: "Build type for cached deps"
+      required: true
+      default: "debug"
   steps:
     - name: "Fetch ref"
       run: git fetch origin ${GITHUB_REF}:ci-branch
+      shell: bash
     - name: "Check out branch"
       run: git checkout --force ci-branch
+      shell: bash
     - name: "Get Conan version"
       run: echo "::set-output name=conan-version::$(conan --version | tr -d '[:alpha:] ')"
+      shell: bash
     - name: "Hash ExternalProjects"
       run: echo "::set-output name=hash-external::$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)"
+      shell: bash
     - uses: actions/cache@v2
       with:
         path: '~/.conan'
-        key: ${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
+        key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
         restore-keys: |
-          ${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-
-          ${{ runner.os }}-
+          ${{ inputs.build-type}}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-
+          ${{ inputs.build-type}}-${{ runner.os }}-
