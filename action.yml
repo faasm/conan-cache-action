@@ -5,21 +5,28 @@ inputs:
     description: "Build type for cached deps"
     required: true
     default: "debug"
+  directory:
+    description: "Directory to run in"
+    required: true
 runs:
   using: "composite"
   steps:
     - name: "Fetch ref"
       run: git fetch origin ${GITHUB_REF}:ci-branch
       shell: bash
+      working-directory: ${{ inputs.directory }}
     - name: "Check out branch"
       run: git checkout --force ci-branch
       shell: bash
+      working-directory: ${{ inputs.directory }}
     - name: "Get Conan version"
       run: echo "::set-output name=conan-version::$(conan --version | tr -d '[:alpha:] ')"
       shell: bash
+      working-directory: ${{ inputs.directory }}
     - name: "Hash ExternalProjects"
       run: echo "::set-output name=hash-external::$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)"
       shell: bash
+      working-directory: ${{ inputs.directory }}
     - uses: actions/cache@v2
       with:
         path: '~/.conan'
