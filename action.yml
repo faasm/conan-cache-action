@@ -20,10 +20,12 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
     - name: "Get Conan version"
+      id: get-conan-version
       run: echo "::set-output name=conan-version::$(conan --version | tr -d '[:alpha:] ')"
       shell: bash
       working-directory: ${{ inputs.directory }}
     - name: "Hash ExternalProjects"
+      id: hash-external
       run: echo "::set-output name=hash-external::$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)"
       shell: bash
       working-directory: ${{ inputs.directory }}
