@@ -1,12 +1,12 @@
 name: "Conan cache setup"
 description: "Configures the conan cache"
+inputs:
+  build-type:
+    description: "Build type for cached deps"
+    required: true
+    default: "debug"
 runs:
   using: "composite"
-  inputs:
-    build-type:
-      description: "Build type for cached deps"
-      required: true
-      default: "debug"
   steps:
     - name: "Fetch ref"
       run: git fetch origin ${GITHUB_REF}:ci-branch
