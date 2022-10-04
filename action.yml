@@ -11,14 +11,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Fetch ref"
-      run: git fetch origin ${GITHUB_REF}:ci-branch
-      shell: bash
-      working-directory: ${{ inputs.directory }}
-    - name: "Check out branch"
-      run: git checkout --force ci-branch
-      shell: bash
-      working-directory: ${{ inputs.directory }}
+    - name: "Check out code"
+      uses: actions/checkout@v3
+      with:
+        submodules: true
     - name: "Get Conan version"
       id: get-conan-version
       run: echo "::set-output name=conan-version::$(conan --version | tr -d '[:alpha:] ')"
