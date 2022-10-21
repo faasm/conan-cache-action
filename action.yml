@@ -14,11 +14,11 @@ runs:
         submodules: true
     - name: "Get Conan version"
       id: get-conan-version
-      run: echo "::set-output name=conan-version::$(conan --version | tr -d '[:alpha:] ')"
+      run: echo "conan-version=$(conan --version | tr -d '[:alpha:] ')" >> $GITHUB_OUTPUT
       shell: bash
     - name: "Hash ExternalProjects"
       id: hash-external
-      run: echo "::set-output name=hash-external::$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)"
+      run: echo "hash-external=$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)" >> $GITHUB_OUTPUT
       shell: bash
     - uses: actions/cache@v2
       with:
