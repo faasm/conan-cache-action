@@ -23,7 +23,7 @@ runs:
     - uses: actions/cache@v2
       with:
         path: '~/.conan'
-        key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
+        key: v2-${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
         restore-keys: |
-          ${{ inputs.build-type}}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-
-          ${{ inputs.build-type}}-${{ runner.os }}-
+          v2-${{ inputs.build-type}}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-
+          v2-${{ inputs.build-type}}-${{ runner.os }}-
