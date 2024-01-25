@@ -16,7 +16,7 @@ runs:
       id: hash-external
       run: echo "hash-external=$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)" >> $GITHUB_OUTPUT
       shell: bash
-    - uses: actions/cache@v3.0.11
+    - uses: actions/cache@v4
       with:
         path: '~/.conan'
         key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
