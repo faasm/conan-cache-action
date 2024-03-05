@@ -5,6 +5,10 @@ inputs:
     description: "Build type for cached deps"
     required: true
     default: "debug"
+  mount-path:
+    description: "Path to mount the conan cache"
+    required: false
+    default: "~/.conan"
 runs:
   using: "composite"
   steps:
@@ -18,7 +22,7 @@ runs:
       shell: bash
     - uses: actions/cache@v4
       with:
-        path: '~/.conan'
+        path: ${{ inputs.mount-path }}
         key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
         restore-keys: |
           ${{ inputs.build-type}}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-
