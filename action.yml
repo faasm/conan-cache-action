@@ -7,6 +7,10 @@ inputs:
     description: "Build type for cached deps"
     required: true
     default: "debug"
+  lookup-only:
+    description: "Only check if the cache is there"
+    required: false
+    default: "false"
   mount-path:
     description: "Path to mount the conan cache"
     required: false
@@ -20,29 +24,26 @@ outputs:
 runs:
   using: "composite"
   steps:
+    # In lookup-only mode, we have to check-out the code here
     - uses: actions/checkout@v4
+      if: ${{ inputs.lookup-only != 'false' }}
       with:
-        path: ./tmp
         submodules: true
-    - name: "Delete me"
-      shell: bash
-      run: |
-        ls -lart .
-        ls -alrt ./tmp
+
     - name: "Get Conan version"
       id: get-conan-version
-      run: echo "conan-version=$(cat ./tmp/cmake/ExternalProjects.cmake | grep conan_check | cut -d' ' -f2)" >> $GITHUB_OUTPUT
+      run: echo "conan-version=$(cat cmake/ExternalProjects.cmake | grep conan_check | cut -d' ' -f2)" >> $GITHUB_OUTPUT
       shell: bash
+
     - name: "Hash ExternalProjects (both Faasm's and Faabric's!)"
       id: hash-external
       run: |
-        echo "hash-external=$(sha256sum ./tmp/cmake/ExternalProjects.cmake | cut '-d ' -f 1)-$(sha256sum ./tmp/faabric/cmake/ExternalProjects.cmake | cut '-d ' -f 1" >> $GITHUB_OUTPUT
+        echo "hash-external=$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)-$(sha256sum faabric/cmake/ExternalProjects.cmake | cut '-d ' -f 1)" >> $GITHUB_OUTPUT
       shell: bash
+
     - uses: actions/cache@v4
       id: conan-cache
       with:
         path: ${{ inputs.mount-path }}
+        lookup-only: ${{ inputs.lookup-only != 'false' }}
         key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
-    - name: "Clean-up"
-      shell: bash
-      run: rm -rf ./tmp
