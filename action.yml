@@ -14,7 +14,7 @@ inputs:
   mount-path:
     description: "Path to mount the conan cache"
     required: false
-    default: "~/.conan"
+    default: ".conan"
 
 outputs:
   cache-hit:
