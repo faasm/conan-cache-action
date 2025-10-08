@@ -16,7 +16,8 @@ inputs:
     default: "false"
   mount-path:
     description: "Path to mount the conan cache"
-    required: true
+    required: false
+    default: "~/.conan2"
 
 outputs:
   cache-hit:
