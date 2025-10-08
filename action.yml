@@ -7,14 +7,16 @@ inputs:
     description: "Build type for cached deps"
     required: true
     default: "debug"
+  from:
+    description: "Project invoking this action"
+    required: true
   lookup-only:
     description: "Only check if the cache is there"
     required: false
     default: "false"
   mount-path:
     description: "Path to mount the conan cache"
-    required: false
-    default: ".conan"
+    required: true
 
 outputs:
   cache-hit:
@@ -30,20 +32,49 @@ runs:
       with:
         submodules: true
 
-    - name: "Get Conan version"
-      id: get-conan-version
-      run: echo "conan-version=$(cat cmake/ExternalProjects.cmake | grep conan_check | cut -d' ' -f2)" >> $GITHUB_OUTPUT
+    # ----- Faasm -----
+
+    - name: "Get Conan version (faasm)"
+      if: ${{ inputs.from == 'faasm' }}
+      id: get-conan-version-faasm
+      run: echo "conan-version=$(grep -Po '^ARG\s+CONAN_VERSION=\K[^ \t\r\n"]+' faabric/docker/faabric-base.dockerfile)" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: "Hash ExternalProjects (both Faasm's and Faabric's!)"
-      id: hash-external
+    - name: "Hash ExternalProjects (faasm, must include faabric's deps too)"
+      if: ${{ inputs.from == 'faasm' }}
+      id: hash-external-faasm
       run: |
         echo "hash-external=$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)-$(sha256sum faabric/cmake/ExternalProjects.cmake | cut '-d ' -f 1)" >> $GITHUB_OUTPUT
       shell: bash
 
     - uses: actions/cache@v4
-      id: conan-cache
+      name: "Cache conan artifacts (faasm)"
+      id: conan-cache-faasm
       with:
         path: ${{ inputs.mount-path }}
         lookup-only: ${{ inputs.lookup-only != 'false' }}
-        key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version.outputs.conan-version }}-${{ steps.hash-external.outputs.hash-external }}
+        key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version-faasm.outputs.conan-version }}-${{ steps.hash-external-faasm.outputs.hash-external }}
+
+    # ----- Faabric -----
+
+    - name: "Get Conan version (faabric)"
+      if: ${{ inputs.from == 'faabric' }}
+      id: get-conan-version-faabric
+      run: echo "conan-version=$(grep -Po '^ARG\s+CONAN_VERSION=\K[^ \t\r\n"]+' docker/faabric-base.dockerfile)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: "Hash ExternalProjects (faabric)"
+      if: ${{ inputs.from == 'faabric' }}
+      id: hash-external-faabric
+      run: |
+        echo "hash-external=$(sha256sum cmake/ExternalProjects.cmake | cut '-d ' -f 1)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - uses: actions/cache@v4
+      name: "Cache conan artifacts (faabric)"
+      id: conan-cache-faabric
+      with:
+        path: ${{ inputs.mount-path }}
+        lookup-only: ${{ inputs.lookup-only != 'false' }}
+        key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version-faabric.outputs.conan-version }}-${{ steps.hash-external-faabric.outputs.hash-external }}
+
