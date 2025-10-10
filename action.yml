@@ -10,10 +10,6 @@ inputs:
   from:
     description: "Project invoking this action"
     required: true
-  lookup-only:
-    description: "Only check if the cache is there"
-    required: false
-    default: "false"
   mount-path:
     description: "Path to mount the conan cache"
     required: false
@@ -27,12 +23,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    # In lookup-only mode, we have to check-out the code here
-    - uses: actions/checkout@v4
-      if: ${{ inputs.lookup-only != 'false' }}
-      with:
-        submodules: true
-
     # ----- Faasm -----
 
     - name: "Get Conan version (faasm)"
@@ -50,10 +40,10 @@ runs:
 
     - uses: actions/cache@v4
       name: "Cache conan artifacts (faasm)"
+      if: ${{ inputs.from == 'faasm' }}
       id: conan-cache-faasm
       with:
         path: ${{ inputs.mount-path }}
-        lookup-only: ${{ inputs.lookup-only != 'false' }}
         key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version-faasm.outputs.conan-version }}-${{ steps.hash-external-faasm.outputs.hash-external }}
 
     # ----- Faabric -----
@@ -73,9 +63,9 @@ runs:
 
     - uses: actions/cache@v4
       name: "Cache conan artifacts (faabric)"
+      if: ${{ inputs.from == 'faabric' }}
       id: conan-cache-faabric
       with:
         path: ${{ inputs.mount-path }}
-        lookup-only: ${{ inputs.lookup-only != 'false' }}
         key: ${{ inputs.build-type }}-${{ runner.os }}-${{ steps.get-conan-version-faabric.outputs.conan-version }}-${{ steps.hash-external-faabric.outputs.hash-external }}
 
