@@ -16,9 +16,12 @@ inputs:
     default: "~/.conan2"
 
 outputs:
-  cache-hit:
+  cache-hit-faasm:
     description: "Wether there was a cache hit or not"
-    value: ${{ steps.conan-cache.outputs.cache-hit }}
+    value: ${{ steps.conan-cache-faasm.outputs.cache-hit }}
+  cache-hit-faabric:
+    description: "Wether there was a cache hit or not"
+    value: ${{ steps.conan-cache-faabric.outputs.cache-hit }}
 
 runs:
   using: "composite"
